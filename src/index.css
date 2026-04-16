@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* You can still add your custom theme colors here! */
+@theme {
+  --color-sankalp-orange: #ea580c; /* Your brand orange */
+  --color-sankalp-cream: #faf9f6; /* Your Pinterest background */
+}
