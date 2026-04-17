@@ -1,9 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useCart } from '../context/CartContext';
 
 const ProductCard = ({ product }) => {
-  // Logic for your "Procure on Order" model
+  // Check availability based on your procurement model
   const isAvailable = product.inStock;
+  const { addToCart } = useCart();
 
   return (
     <motion.div 
@@ -35,7 +37,7 @@ const ProductCard = ({ product }) => {
           </motion.span>
         </div>
 
-        {/* Status Overlay */}
+        {/* Status Overlay for Out of Season items */}
         {!isAvailable && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
              <span className="bg-white/90 text-slate-900 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
@@ -46,7 +48,7 @@ const ProductCard = ({ product }) => {
       </div>
 
       {/* Content Section */}
-      <div className="flex-1 px-2  ">
+      <div className="flex-1 px-2">
         <div className="flex justify-between items-start mb-2 gap-2 ">
           <h3 className="text-xl font-black text-slate-900 tracking-tight leading-none">
             {product.name}
@@ -54,7 +56,7 @@ const ProductCard = ({ product }) => {
           {isAvailable && (
             <div className="bg-green-50 px-2 py-1 rounded-md shrink-0">
                <p className="text-[10px] text-green-600 font-bold uppercase tracking-tighter">
-                  Save ₹{product.price - product.bulkPrice}
+                 Save ₹{product.price - product.bulkPrice}
                </p>
             </div>
           )}
@@ -63,35 +65,49 @@ const ProductCard = ({ product }) => {
         <p className="text-slate-400 text-xs font-medium leading-relaxed line-clamp-2 italic">
           "{product.description}"
         </p>
-        <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest">MRP:₹{product.MRP}</p>
+        <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest mt-2">
+          MRP: ₹{product.MRP}
+        </p>
       </div>
 
-      {/* Footer / Pricing */}
+      {/* Footer / Pricing & Action */}
       <div className="mt-8 flex items-end justify-between px-1 pb-2">
         <div className="flex flex-col gap-0.5">
-          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Price / {product.unit}</p>
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+            Price / {product.unit}
+          </p>
           <div className="flex items-baseline gap-1">
             <span className="text-3xl font-black text-slate-900">₹{product.price}</span>
             <span className="text-sm font-bold text-slate-300">/ {product.unit}</span>
           </div>
-          {/* Replaced inline style with Tailwind class */}
-          <span className="text-[11px] font-bold text-green-600 uppercase tracking-tighter bg-green-50 w-fit px-2 rounded-sm">
+          <span className="text-[11px] font-bold text-green-600 uppercase tracking-tighter bg-green-50 w-fit px-2 rounded-sm mt-1">
              Bulk: ₹{product.bulkPrice}
           </span>
         </div>
         
         <motion.button 
           disabled={!isAvailable}
+          onClick={() => isAvailable && addToCart(product)} 
           whileHover={isAvailable ? { scale: 1.1, backgroundColor: "#000" } : {}}
           whileTap={isAvailable ? { scale: 0.9 } : {}}
           className={`p-4 rounded-2xl shadow-xl transition-all duration-300 ${
             isAvailable 
-            ? 'bg-orange-600 text-white shadow-orange-200' 
+            ? 'bg-orange-600 text-white shadow-orange-200 cursor-pointer' 
             : 'bg-slate-200 text-slate-400 shadow-none cursor-not-allowed'
           }`}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y1="19"></line>
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="3" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
         </motion.button>

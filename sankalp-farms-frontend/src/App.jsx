@@ -4,8 +4,10 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Product from './pages/Product';
 import OurStory from "./pages/OurStory"
+import Home from './pages/Home';
+import Cart from './components/Cart';
 // Create a simple Home component or import your Hero here
-const Home = () => <Product />; 
+
 const Story = () => <div className="py-20 text-center font-bold">Our Konkan & Gujarat Story Coming Soon...</div>;
 
 function App() {
@@ -28,7 +30,7 @@ function App() {
          <Route path="/story" element={<OurStory />} />
           
           {/* Cart Page (Placeholder) */}
-          <Route path="/cart" element={<div className="py-20 text-center font-bold">Your Cart is Empty</div>} />
+          <Route path="/cart" element={<div className="py-20 text-center font-bold">Your Cart is Empty</div> && <Cart/>} />
         </Routes>
       </main>
 

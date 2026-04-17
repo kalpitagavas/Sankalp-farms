@@ -4,6 +4,7 @@ import logoImg from '../assets/logo.png';
 import { Link } from 'react-router-dom';
 
 const Navbar = () => {
+  
   return (
     <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 px-6 py-2">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
