@@ -6,6 +6,7 @@ import Product from './pages/Product';
 import OurStory from "./pages/OurStory"
 import Home from './pages/Home';
 import Cart from './components/Cart';
+import Checkout from './pages/Checkout';
 // Create a simple Home component or import your Hero here
 
 const Story = () => <div className="py-20 text-center font-bold">Our Konkan & Gujarat Story Coming Soon...</div>;
@@ -31,6 +32,9 @@ function App() {
           
           {/* Cart Page (Placeholder) */}
           <Route path="/cart" element={<div className="py-20 text-center font-bold">Your Cart is Empty</div> && <Cart/>} />
+
+          {/* Checkout Page (Placeholder) */}
+          <Route path="/checkout" element={<Checkout/>} />
         </Routes>
       </main>
 

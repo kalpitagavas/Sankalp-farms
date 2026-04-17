@@ -9,7 +9,7 @@ const Product = () => {
   const [category, setCategory] = useState("All")
   const [selectedProduct, setSelectedProduct] = useState(null) // State for Modal
  const {addToCart}=useCart()
-  const categories = ["All", "Spices", "Dry Fruits", "Fruits", "Oils"];
+  const categories = ["All", "Spices", "Konkan Roots", "Fruits", "Oils"];
 
   const filteredProducts = products.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());

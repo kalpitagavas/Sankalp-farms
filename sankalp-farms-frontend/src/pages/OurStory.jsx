@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import kokan from '../assets/kokan.jpg'; 
+import farm from '../assets/farm.webp'
 const OurStory = () => {
   const [activeStory, setActiveStory] = useState(null);
   const storyRef = useRef(null);
@@ -73,7 +74,7 @@ const OurStory = () => {
             className={`relative group overflow-hidden rounded-[3rem] cursor-pointer transition-all duration-500 ${activeStory === 'konkan' ? 'opacity-40 grayscale' : 'opacity-100'}`}
           >
             <img 
-              src="https://images.unsplash.com/photo-1599940824399-b87987cb9723?auto=format&fit=crop&q=80" 
+              src={farm} 
               alt="Gujarat" 
               className="w-full h-[500px] object-cover" 
             />

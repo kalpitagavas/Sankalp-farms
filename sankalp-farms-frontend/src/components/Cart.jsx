@@ -1,10 +1,11 @@
 import React from 'react';
 import { useCart } from '../context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Added useNavigate
 
 const Cart = () => {
   const { cart, setCart, removeFromCart, totalPrice } = useCart();
+  const navigate = useNavigate(); // Initialize navigation
 
   const handleWhatsAppOrder = () => {
     const message = cart
@@ -16,7 +17,6 @@ const Cart = () => {
     window.open(`https://wa.me/918169533371?text=${finalMsg}`, '_blank');
   };
 
-  // Improved Handlers
   const handleAdd = (id) => {
     setCart((prev) => prev.map(item => item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
   };
@@ -24,7 +24,7 @@ const Cart = () => {
   const handleRemove = (id) => {
     setCart((prev) => prev.map(item => (item.id === id && item.quantity > 1) ? { ...item, quantity: item.quantity - 1 } : item));
   };
-
+ 
   if (cart.length === 0) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6">
@@ -67,7 +67,6 @@ const Cart = () => {
                     ₹{item.price} / {item.unit}
                   </p>
                   
-                  {/* Styled Quantity Controls */}
                   <div className="mt-3 flex items-center gap-4 bg-slate-50 w-fit px-3 py-1 rounded-full border border-slate-100">
                     <button onClick={() => handleRemove(item.id)} className="text-slate-400 hover:text-slate-900 font-bold px-1 text-lg">-</button>
                     <span className="text-[11px] font-black text-slate-900 min-w-[40px] text-center uppercase tracking-tighter">Qty: {item.quantity}</span>
@@ -102,12 +101,23 @@ const Cart = () => {
           </div>
         </div>
         
-        <button 
-          onClick={handleWhatsAppOrder}
-          className="w-full py-6 bg-white text-slate-900 hover:bg-green-600 hover:text-white font-black uppercase tracking-[0.2em] text-xs rounded-2xl transition-all shadow-xl"
-        >
-          Confirm via WhatsApp
-        </button>
+        <div className="flex flex-col gap-4 relative z-10">
+          {/* Main Checkout Button */}
+          <button 
+            onClick={() => navigate('/checkout')} // Navigates to checkout page
+            className="w-full py-6 bg-white text-slate-900 hover:bg-slate-100 font-black uppercase tracking-[0.2em] text-xs rounded-2xl transition-all shadow-xl"
+          >
+            Proceed to Checkout
+          </button>
+
+          {/* WhatsApp Secondary Option */}
+          <button 
+            onClick={handleWhatsAppOrder}
+            className="w-full py-4 bg-transparent border border-slate-700 text-slate-400 hover:text-green-500 hover:border-green-500/50 font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl transition-all"
+          >
+            Quick Order via WhatsApp
+          </button>
+        </div>
       </div>
     </div>
   );
