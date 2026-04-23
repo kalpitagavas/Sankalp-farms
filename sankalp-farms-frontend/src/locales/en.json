@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "story": "Our Story",
+    "products": "Collection",
+    "login": "Sign In",
+    "register": "Register",
+    "language": "Language"
+  },
+  "productPage": {
+    "titleFirst": "Direct from",
+    "searchPlaceholder": "Search fresh produce...",
+    "viewDetails": "View Details",
+    "farmFresh": "Farm Fresh",
+    "noResults": "No products match your search",
+    "fastShipping": "Fast Shipping",
+    "mumbaiLocal": "Mumbai Local Delivery",
+    "authentic": "100% Authentic",
+    "directFromVillage": "Direct from Village Artisans",
+    "defaultDescription": "Handcrafted with love using traditional methods."
+  },
+  "regions": {
+    "konkan": "Konkan",
+    "gujarat": "Gujarat"
+  },
+  "categories": {
+    "all": "All",
+    "spices": "Spices",
+    "konkanroots": "Konkan Roots",
+    "fruits": "Fruits",
+    "oils": "Oils"
+  },
+  "common": {
+    "back": "Back"
+  }, "auth": {
+    "loginTitle": "Login",
+    "registerTitle": "Create Account",
+    "loginSubtitle": "Access your farm-fresh account",
+    "registerSubtitle": "Join the Sankalp family",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "name@email.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "nameLabel": "Full Name",
+    "namePlaceholder": "Your full name",
+    "forgotPassword": "Forgot Password?",
+    "loginButton": "Enter Village",
+    "registerButton": "Register",
+    "alreadyMember": "Already a member?",
+    "newToSankalp": "New to Sankalp?",
+    "signInLink": "Sign In",
+    "joinUsLink": "Join Us",
+    "didYouKnow": "Did you know?",
+    "factText": "Our Konkan mangoes reach your Mumbai home from the tree in less than 48 hours.",
+    "welcomeBack": "Welcome back to your roots."
+  }
+
+}

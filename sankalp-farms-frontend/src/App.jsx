@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { OrderProvider } from './context/OrderContext'; // 1. IMPORT THIS
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Product from './pages/Product';
@@ -7,41 +8,43 @@ import OurStory from "./pages/OurStory"
 import Home from './pages/Home';
 import Cart from './components/Cart';
 import Checkout from './pages/Checkout';
-// Create a simple Home component or import your Hero here
-
-const Story = () => <div className="py-20 text-center font-bold">Our Konkan & Gujarat Story Coming Soon...</div>;
+import CartSidebar from './components/CardSidebar';
+import ProductDetail from './pages/ProductDetail'
+import AdminDashboard from './pages/AdminDashboard';
+import TrackOrder from './pages/TrackOrder'; // 2. IMPORT TRACKING PAGE
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Profile from './pages/Profile';
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col bg-white selection:bg-green-100">
-      
-      {/* 1. Fixed Elements: These show on EVERY page */}
-      <Navbar />
+    /* 3. WRAP EVERYTHING IN THE PROVIDER */
+    <OrderProvider>
+      <div className="min-h-screen flex flex-col bg-white selection:bg-green-100">
+        <CartSidebar />
+        <Navbar />
 
-      {/* 2. Dynamic Content: Only this part changes when you navigate */}
-      <main className="flex-1">
-        <Routes>
-          {/* Main Landing Page */}
-          <Route path="/" element={<Home />} />
-          
-          {/* Product Page */}
-          <Route path="/product" element={<Product />} />
-          
-          {/* Story Page */}
-         <Route path="/story" element={<OurStory />} />
-          
-          {/* Cart Page (Placeholder) */}
-          <Route path="/cart" element={<div className="py-20 text-center font-bold">Your Cart is Empty</div> && <Cart/>} />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/product" element={<Product />} />
+            <Route path="/story" element={<OurStory />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/cart" element={<Cart />} />
+           <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/checkout" element={<Checkout />} />
+            
+            {/* 4. ADD THE TRACKING ROUTE */}
+            <Route path="/track" element={<TrackOrder />} /> 
+             <Route path="/login" element={<Login />} /> 
+               <Route path="/register" element={<Register />} /> 
+                  <Route path="/profile" element={<Profile />} /> 
+          </Routes>
+        </main>
 
-          {/* Checkout Page (Placeholder) */}
-          <Route path="/checkout" element={<Checkout/>} />
-        </Routes>
-      </main>
-
-      {/* 3. Fixed Footer */}
-      <Footer />
-      
-    </div>
+        <Footer />
+      </div>
+    </OrderProvider>
   );
 }
 

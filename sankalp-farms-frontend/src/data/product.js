@@ -90,7 +90,7 @@ export const products = [
     price: 350,
     unit: "500g",
     image: "https://t3.ftcdn.net/jpg/01/05/21/53/360_F_105215383_B7eJc7Z20uB6m2gM8U1QZ3r5xG8X0b6Y.jpg",
-    category: "Spices",
+    category: "Konkan Roots",
     bulkPrice: 310,
     inStock: true,
     MRP:380

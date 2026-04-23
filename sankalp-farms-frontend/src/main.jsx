@@ -4,9 +4,13 @@ import './index.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import { CartProvider } from './context/CartContext.jsx'
-
+import './i18n';
 createRoot(document.getElementById('root')).render(
-  <BrowserRouter><CartProvider><StrictMode>
-    <App />
-  </StrictMode></CartProvider></BrowserRouter>,
+  <StrictMode>
+    <BrowserRouter>
+      <CartProvider>
+        <App />
+      </CartProvider>
+    </BrowserRouter>
+  </StrictMode>,
 )

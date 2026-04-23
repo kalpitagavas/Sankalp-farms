@@ -3,17 +3,19 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(()=>{
-    const SavedCart=localStorage.getItem(('sankalp_cart'));
-    return SavedCart?JSON.parse(SavedCart):[]
-
+  const [cart, setCart] = useState(() => {
+    const SavedCart = localStorage.getItem('sankalp_cart');
+    return SavedCart ? JSON.parse(SavedCart) : [];
   });
- useEffect(()=>{
-   localStorage.setItem('sankalp_cart',JSON.stringify(cart))
- },[cart]) 
-  // Add to Cart Logic
+
+  // CHANGE 1: Use the names your components are looking for
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('sankalp_cart', JSON.stringify(cart));
+  }, [cart]);
+
   const addToCart = (product) => {
-    
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
       if (existingItem) {
@@ -22,27 +24,46 @@ export const CartProvider = ({ children }) => {
         );
       }
       return [...prevCart, { ...product, quantity: 1 }];
-     
     });
+    // Optional: Open sidebar automatically when adding an item
+    setIsCartOpen(true); 
   };
 
-  // Remove from Cart
   const removeFromCart = (id) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== id));
   };
 
-  // Calculate Total Items for Navbar Badge
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  // CHANGE 2: Add an updateQuantity function for the +/- buttons in the sidebar
+  const updateQuantity = (id, amount) => {
+    setCart((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, quantity: Math.max(1, item.quantity + amount) }
+          : item
+      )
+    );
+  };
 
-  // Calculate Total Price
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cart,setCart, addToCart, removeFromCart, totalItems, totalPrice }}>
+    <CartContext.Provider 
+      value={{ 
+        cart, 
+        setCart, 
+        addToCart, 
+        removeFromCart, 
+        updateQuantity, // Export this
+        totalItems, 
+        totalPrice, 
+        isCartOpen,     // Export this
+        setIsCartOpen   // Export this
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
 };
 
-// Custom Hook for easy use
 export const useCart = () => useContext(CartContext);

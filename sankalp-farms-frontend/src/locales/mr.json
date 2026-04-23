@@ -1,0 +1,59 @@
+{
+  "nav": {
+    "story": "आमची कथा",
+    "products": "उत्पादने"
+  },
+  "productPage": {
+    "titleFirst": "थेट",
+    "searchPlaceholder": "ताजी उत्पादने शोधा...",
+    "viewDetails": "तपशील पहा",
+    "farmFresh": "थेट शेतातून",
+    "noResults": "काहीही सापडले नाही"
+  },
+  "regions": {
+    "konkan": "कोकण",
+    "gujarat": "गुजरात"
+  },
+  "categories": {
+    "all": "सर्व",
+    "spices": "मसाले",
+    "konkanroots": "कोकणची मुळे",
+    "fruits": "फळे",
+    "oils": "तेले"
+  },"common": {
+    "back": "मागे"
+  },
+  "productPage": {
+    "addToCart": "कार्टमध्ये जोडा",
+    "viewDetails": "तपशील पहा",
+    "farmFresh": "शेतकरी ताजे",
+    "fastShipping": "वेगवान डिलिव्हरी",
+    "mumbaiLocal": "मुंबई स्थानिक डिलिव्हरी",
+    "authentic": "१००% अस्सल",
+    "directFromVillage": "थेट गावातील कारागिरांकडून",
+    "noResults": "या श्रेणीमध्ये कोणतीही उत्पादने आढळली नाहीत",
+    "searchPlaceholder": "मसाले, तेल किंवा फळे शोधा..."
+  },
+  "auth": {
+    "loginTitle": "लॉगिन करा",
+    "registerTitle": "खाते तयार करा",
+    "loginSubtitle": "तुमच्या शेत-ताजी खात्यात प्रवेश करा",
+    "registerSubtitle": "संकल्प कुटुंबात सामील व्हा",
+    "emailLabel": "ईमेल पत्ता",
+    "emailPlaceholder": "नाव@ईमेल.कॉम",
+    "passwordLabel": "पासवर्ड",
+    "passwordPlaceholder": "••••••••",
+    "nameLabel": "पूर्ण नाव",
+    "namePlaceholder": "तुमचे पूर्ण नाव",
+    "forgotPassword": "पासवर्ड विसरलात?",
+    "loginButton": "गावात प्रवेश करा",
+    "registerButton": "नोंदणी करा",
+    "alreadyMember": "आधीच सदस्य आहात?",
+    "newToSankalp": "संकल्पमध्ये नवीन आहात?",
+    "signInLink": "साइन इन करा",
+    "joinUsLink": "आमच्याशी जोडा",
+    "didYouKnow": "तुम्हाला माहित आहे का?",
+    "factText": "आमचे कोकणचे आंबे झाडापासून तुमच्या मुंबईतील घरापर्यंत ४८ तासांपेक्षा कमी वेळात पोहोचतात.",
+    "welcomeBack": "मुळांकडे परतण्याचे स्वागत आहे."
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "story": "અમારી વાર્તા",
+    "products": "પ્રોડક્ટ્સ"
+  },
+  "productPage": {
+    "titleFirst": "સીધા",
+    "searchPlaceholder": "તાજી પ્રોડક્ટ શોધો...",
+    "viewDetails": "વિગત જુઓ",
+    "farmFresh": "ખેતરથી તાજું",
+    "noResults": "કોઈ પરિણામ મળ્યું નથી"
+  },
+  "regions": {
+    "konkan": "કોંકણ",
+    "gujarat": "ગુજરાત"
+  },
+  "categories": {
+    "all": "બધા",
+    "spices": "મસાલા",
+    "konkanroots": "કોંકણ મૂળો",
+    "fruits": "ફળો",
+    "oils": "તેલ"
+  },"common": {
+    "back": "પાછા",
+    "addToCart": "કાર્ટમાં ઉમેરો"
+  },
+  "productPage": {
+    "addToCart": "કાર્ટમાં ઉમેરો",
+    "viewDetails": "વિગત જુઓ",
+    "farmFresh": "ખેતરમાંથી તાજું",
+    "fastShipping": "ઝડપી શિપિંગ",
+    "mumbaiLocal": "મુંબઈ લોકલ ડિલિવરી",
+    "authentic": "100% અસલી",
+    "directFromVillage": "સીધા ગામના કારીગરો પાસેથી",
+    "noResults": "આ કેટેગરીમાં કોઈ ઉત્પાદનો મળ્યા નથી",
+    "searchPlaceholder": "મસાલા, તેલ અથવા ફળો શોધો..."
+  }
+}

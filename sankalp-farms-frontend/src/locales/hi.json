@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "story": "हमारी कहानी",
+    "products": "उत्पाद"
+  },
+  "productPage": {
+    "titleFirst": "सीधे",
+    "searchPlaceholder": "ताज़ा उत्पाद खोजें...",
+    "viewDetails": "विवरण देखें",
+    "farmFresh": "खेत से ताज़ा",
+    "noResults": "कोई परिणाम नहीं मिला"
+  },
+  "regions": {
+    "konkan": "कोंकण",
+    "gujarat": "गुजरात"
+  },
+  "categories": {
+    "all": "सभी",
+    "spices": "मसाले",
+    "konkanroots": "कोंकण जड़ें",
+    "fruits": "फल",
+    "oils": "तेल"
+  },"common": {
+    "back": "पीछे"
+  },
+  "productPage": {
+    "addToCart": "कार्ट में जोड़ें",
+    "viewDetails": "विवरण देखें",
+    "farmFresh": "खेत से ताजा",
+    "fastShipping": "तेजी से शिपिंग",
+    "mumbaiLocal": "मुंबई लोकल डिलीवरी",
+    "authentic": "100% असली",
+    "directFromVillage": "सीधे गांव के कारीगरों से",
+    "noResults": "इस श्रेणी में कोई उत्पाद नहीं मिला",
+    "searchPlaceholder": "मसाले, तेल या फल खोजें..."
+  }
+}
