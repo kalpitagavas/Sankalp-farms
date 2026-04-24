@@ -4,8 +4,10 @@
     "products": "Collection",
     "login": "Sign In",
     "register": "Register",
-    "language": "Language"
+    "language": "Language",
+    "logout": "Logout"
   },
+ 
   "productPage": {
     "titleFirst": "Direct from",
     "searchPlaceholder": "Search fresh produce...",

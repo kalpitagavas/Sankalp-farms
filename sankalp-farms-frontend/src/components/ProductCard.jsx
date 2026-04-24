@@ -16,12 +16,11 @@ const ProductCard = ({ product, isBulk }) => { // <--- Added isBulk prop
     >
       {/* 1. Image Section */}
       <div className="relative h-[320px] w-full rounded-[2.5rem] overflow-hidden bg-stone-50">
-        <img 
-          src={product.image} 
-          alt={product.name} 
-          className={`w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 ${!isAvailable ? 'grayscale' : ''}`}
-        />
-        
+          <img 
+      src={product.image} 
+      alt={product.name} 
+      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+    />
         <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] text-white shadow-lg
           ${isKonkan ? 'bg-emerald-600' : 'bg-orange-600'}`}>
           {region}

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { products } from '../data/product';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ShoppingBag, Truck, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import API from '../api/axiosConfig';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -12,11 +12,49 @@ const ProductDetail = () => {
   const { t } = useTranslation();
   const { addToCart } = useCart();
   
-  // Find the product based on URL ID
-  const product = products.find((item) => item.id === parseInt(id));
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch product data from MongoDB backend
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        // Using the ID from the URL to fetch from your /product/:id route
+        const res = await API.get(`/product/${id}`);
+        setProduct(res.data);
+      } catch (err) {
+        console.error("Error fetching product details:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center gap-4">
+        <div className="w-12 h-12 border-4 border-slate-200 border-t-orange-600 rounded-full animate-spin"></div>
+        <div className="font-black uppercase tracking-[0.3em] text-slate-400 text-xs">
+          Loading Sankalp Freshness...
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
-    return <div className="h-screen flex items-center justify-center font-black uppercase tracking-widest text-slate-400">Product Not Found</div>;
+    return (
+      <div className="h-screen flex flex-col items-center justify-center gap-6">
+        <div className="font-black uppercase tracking-widest text-slate-400">Product Not Found</div>
+        <button 
+          onClick={() => navigate('/products')}
+          className="text-xs font-black uppercase tracking-widest bg-slate-900 text-white px-8 py-4 rounded-2xl"
+        >
+          Return to Collection
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -46,6 +84,8 @@ const ProductDetail = () => {
               src={product.image} 
               alt={product.name} 
               className="w-full h-full object-cover"
+              /* Ensure no grayscale filters are applied here */
+              style={{ filter: 'grayscale(0%)', brightness: '100%' }}
             />
           </motion.div>
         </div>
@@ -66,7 +106,6 @@ const ProductDetail = () => {
           </div>
 
           <p className="text-slate-500 text-lg leading-relaxed mb-12 font-medium">
-            {/* If your data has translated descriptions, use them here */}
             {product.description || t('productPage.defaultDescription')}
           </p>
 
