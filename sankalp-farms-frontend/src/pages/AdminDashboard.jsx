@@ -6,6 +6,7 @@ import {
   Search, Filter, ChevronRight, MoreVertical,
   ArrowUpRight, Users, TrendingUp 
 } from 'lucide-react';
+import API from '../api/axiosConfig';
 
 const AdminDashboard = () => {
   // 1. Simulated "Database" of all customer orders
@@ -19,12 +20,31 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   // 2. Logic to update status locally
-  const updateStatus = (orderId, newStatus) => {
+const updateStatus = async (orderId, newStatus) => {
+  try {
+    // 1. Get token for authentication (assuming you store it in localStorage)
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    // 2. Update the database via your API
+    await API.put(`/api/orders/${orderId}/status`, { status: newStatus }, config);
+
+    // 3. Update the UI locally ONLY after the DB update succeeds
     setOrders(orders.map(order => 
       order.id === orderId ? { ...order, status: newStatus } : order
     ));
-  };
-
+    
+    // Optional: Add a toast notification here to confirm success!
+  } catch (error) {
+    console.error("Failed to update status:", error);
+    alert("Could not update order status. Please try again.");
+  }
+};
   const filteredOrders = orders.filter(order => 
     order.customer.toLowerCase().includes(searchTerm.toLowerCase()) || 
     order.id.includes(searchTerm)

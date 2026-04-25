@@ -15,6 +15,7 @@ import TrackOrder from './pages/TrackOrder'; // 2. IMPORT TRACKING PAGE
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import OrderSuccess from './pages/OrderSuccess';
 
 function App() {
   return (
@@ -35,10 +36,13 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             
             {/* 4. ADD THE TRACKING ROUTE */}
-            <Route path="/track" element={<TrackOrder />} /> 
+          
              <Route path="/login" element={<Login />} /> 
                <Route path="/register" element={<Register />} /> 
                   <Route path="/profile" element={<Profile />} /> 
+                 <Route path="/order-success/:id" element={<OrderSuccess />} />
+          <Route path="/track-order/:id" element={<TrackOrder />} />
+                  
           </Routes>
         </main>
 

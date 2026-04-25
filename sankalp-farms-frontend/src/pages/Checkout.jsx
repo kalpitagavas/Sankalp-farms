@@ -1,193 +1,231 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { 
-  MapPin, Phone, User, Clock, MessageSquare, 
-  ShieldCheck, Leaf, ArrowRight, CheckCircle2, Truck 
-} from 'lucide-react';
+import { ChevronLeft, CreditCard, CheckCircle2, AlertCircle, MapPin, Loader2 } from 'lucide-react';
+import API from '../api/axiosConfig';
 
 const Checkout = () => {
-  const { cart, totalPrice, setCart } = useCart();
+  const { cart, totalPrice } = useCart();
   const navigate = useNavigate();
   
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [showRazorpayMock, setShowRazorpayMock] = useState(false);
-  const [availableDates, setAvailableDates] = useState([]);
-  
-  const [formData, setFormData] = useState({ 
-    name: '', phone: '', address: '', landmark: '',
-    deliveryNote: '', deliveryBatch: '', whatsappUpdates: true
+  const deliveryFee = totalPrice > 500 ? 0 : 50;
+  const grandTotal = totalPrice + deliveryFee;
+
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingAddress, setIsSavingAddress] = useState(false);
+
+  const [formData, setFormData] = useState({
+    fullName: '',
+    phone: '',
+    address: '',
+    city: 'Mumbai',
+    zipCode: '', 
+    landmark: ''
   });
 
+  // 1. Guard: If cart is empty, don't show the checkout
   useEffect(() => {
-    const getNextBatches = () => {
-      const dates = [];
-      let today = new Date();
-      while (dates.length < 2) {
-        today.setDate(today.getDate() + 1);
-        const day = today.getDay(); 
-        if (day === 3 || day === 6) {
-          dates.push({
-            label: day === 3 ? "Mid-Week Harvest" : "Weekend Fresh",
-            dateStr: today.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' }),
-            harvestDate: new Date(today.getTime() - 86400000).toLocaleDateString('en-IN', { weekday: 'short' })
-          });
+    if (!loading && cart.length === 0) {
+      navigate('/cart');
+    }
+  }, [cart, loading, navigate]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        if (!userInfo?.token) {
+          navigate('/login');
+          return;
         }
+
+        const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+        const { data } = await API.get('/users/profile', config);
+        
+        setFormData(prev => ({
+          ...prev,
+          fullName: data.name || '', 
+          phone: data.phone || ''
+        }));
+
+        if (data.addresses?.length > 0) {
+          setSavedAddresses(data.addresses);
+          handleSelectAddress(data.addresses[0]);
+        }
+      } catch (err) {
+        console.error("Profile fetch failed:", err);
+      } finally {
+        setLoading(false);
       }
-      setAvailableDates(dates);
-      setFormData(prev => ({ ...prev, deliveryBatch: dates[0].dateStr }));
     };
-    getNextBatches();
-  }, []);
+    fetchUserData();
+  }, [navigate]);
 
-  const handlePlaceOrder = (e) => {
+  const handleSelectAddress = (addr) => {
+    setSelectedAddressId(addr._id);
+    setFormData({
+      fullName: addr.fullName,
+      phone: addr.phone,
+      address: addr.address,
+      city: addr.city || 'Mumbai',
+      zipCode: addr.pincode,
+      landmark: addr.landmark || ''
+    });
+  };
+
+const handleInputChange = (e) => {
+  const { name, value } = e.target;
+  
+  if (name === 'phone') {
+    // This line removes everything EXCEPT numbers
+    const cleaned = value.replace(/\D/g, '').slice(0, 10);
+    setFormData({ ...formData, [name]: cleaned });
+  } else {
+    setFormData({ ...formData, [name]: value });
+  }
+};
+
+  const validateForm = () => {
+    if (formData.fullName.length < 3) return "Please enter a valid Name.";
+    if (!/^\d{10}$/.test(formData.phone)) return "Enter a valid 10-digit Phone Number.";
+    if (formData.address.length < 5) return "Address is too short.";
+    if (!/^\d{6}$/.test(formData.zipCode)) return "Pincode must be 6 digits.";
+    return null;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      setShowRazorpayMock(true);
-    }, 1000);
+    const error = validateForm();
+    if (error) return alert(error);
+    if (isSubmitting) return;
+
+    try {
+      setIsSubmitting(true);
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+
+      const orderData = {
+        orderItems: cart.map(item => ({
+          product: item.productId?._id || item._id, // Standardized to 'product'
+          name: item.productId?.name || item.name,
+          quantity: item.quantity,
+          price: item.productId?.price || item.price,
+          image: item.productId?.image || item.image
+        })),
+        shippingAddress: {
+          fullName: formData.fullName,
+          phone: formData.phone,
+          address: formData.address,
+          pincode: formData.zipCode,
+          landmark: formData.landmark,
+          city: formData.city
+        },
+        totalPrice: grandTotal,
+        paymentMethod: 'COD'
+      };
+
+      const { data } = await API.post('/orders', orderData, config);
+    navigate(`/order-success/${data._id}`);
+    } catch (err) {
+      console.error("ORDER ERROR DETAIL:", err.response?.data);
+      alert(err.response?.data?.message || "Order failed. Check console.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const finalizePayment = () => {
-    setShowRazorpayMock(false);
-    setIsProcessing(true);
-    setTimeout(() => {
-      navigate('/order-success', { state: { ...formData, orderId: "SNK-" + Math.random().toString(36).substr(2, 6).toUpperCase(), total: totalPrice } });
-      setCart([]); 
-    }, 2000);
-  };
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <Loader2 className="animate-spin text-slate-400" size={40} />
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#f9f9f7] px-4 py-20 font-sans text-[#1a1a1a]">
-      
-      {/* --- PAYMENT MODAL (Matching your Cart style) --- */}
-      <AnimatePresence>
-        {showRazorpayMock && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-[#0c0c0c]/90 backdrop-blur-sm" />
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="relative bg-[#111111] w-full max-w-[400px] rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/10 text-white p-8">
-              <div className="flex justify-between items-center mb-8">
-                <h3 className="font-bold text-xl text-[#2e7d32]">Sankalp Pay</h3>
-                <ShieldCheck className="text-[#2e7d32]" size={24} />
-              </div>
-              <div className="mb-10">
-                <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Amount Due</p>
-                <p className="text-5xl font-black italic">₹{totalPrice}</p>
-              </div>
-              <button onClick={finalizePayment} className="w-full py-5 bg-[#ffffff] text-[#111111] rounded-2xl font-black uppercase text-sm tracking-widest hover:bg-[#2e7d32] hover:text-white transition-all">
-                Complete Payment
+    <div className="min-h-screen bg-slate-50 pb-20 font-sans text-slate-900">
+      {/* Header */}
+      <div className="bg-white border-b border-slate-100 p-6 flex items-center gap-4 sticky top-0 z-20">
+        <button onClick={() => navigate(-1)} className="p-2 hover:bg-slate-50 rounded-full">
+          <ChevronLeft size={20} />
+        </button>
+        <h1 className="text-xl font-black uppercase italic tracking-tight">Checkout</h1>
+      </div>
+
+      <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {/* Left Column: Forms */}
+        <div className="space-y-10">
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-black uppercase tracking-widest text-xs">Saved Addresses</h3>
+              <button onClick={() => setSelectedAddressId(null)} className="text-[10px] font-black uppercase text-green-600">
+                + New Address
               </button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      <div className="max-w-6xl mx-auto">
-        <header className="mb-16">
-          <h1 className="text-4xl font-black tracking-tighter uppercase leading-none">Checkout<span className="text-[#2e7d32]">.</span></h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 mt-2">Direct from Konkan & Gujarat</p>
-        </header>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
-          {/* LEFT: FORM SECTION */}
-          <div className="lg:col-span-7 space-y-12">
-            <form onSubmit={handlePlaceOrder} className="space-y-12">
-              
-              {/* Personal Info */}
-              <section className="space-y-6">
-                <div className="flex items-center gap-3 text-[#2e7d32]">
-                  <User size={18} />
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">Contact Information</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {savedAddresses.map((addr) => (
+                <div 
+                  key={addr._id}
+                  onClick={() => handleSelectAddress(addr)}
+                  className={`p-5 rounded-[1.5rem] border-2 cursor-pointer transition-all ${
+                    selectedAddressId === addr._id ? 'border-green-600 bg-green-50' : 'bg-white border-transparent shadow-sm'
+                  }`}
+                >
+                  <p className="font-bold text-sm">{addr.fullName}</p>
+                  <p className="text-xs text-slate-500 line-clamp-1">{addr.address}</p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <input required name="name" placeholder="YOUR NAME" onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full py-4 bg-transparent border-b border-gray-200 focus:border-[#2e7d32] outline-none font-bold placeholder:text-gray-300 transition-all uppercase text-sm tracking-widest" />
-                  <input required name="phone" placeholder="PHONE NUMBER" onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full py-4 bg-transparent border-b border-gray-200 focus:border-[#2e7d32] outline-none font-bold placeholder:text-gray-300 transition-all uppercase text-sm tracking-widest" />
-                </div>
-              </section>
+              ))}
+            </div>
+          </section>
 
-              {/* Harvest Date (Batches) */}
-              <section className="space-y-6">
-                <div className="flex items-center gap-3 text-[#2e7d32]">
-                  <Clock size={18} />
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">Select Harvest Batch</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {availableDates.map((batch, index) => (
-                    <button key={index} type="button" onClick={() => setFormData({...formData, deliveryBatch: batch.dateStr})}
-                      className={`p-6 rounded-[1.5rem] text-left transition-all border-2 ${
-                        formData.deliveryBatch === batch.dateStr ? 'border-[#2e7d32] bg-white shadow-lg' : 'border-gray-100 bg-white/50'
-                      }`}
-                    >
-                      <p className="text-[9px] font-black uppercase text-[#2e7d32] mb-1 tracking-widest">{batch.label}</p>
-                      <p className="font-black text-xl text-[#111111]">{batch.dateStr}</p>
-                      <p className="text-[10px] text-gray-400 mt-1 italic leading-tight">Harvested {batch.harvestDate}, reaching Mumbai next morning.</p>
-                    </button>
-                  ))}
-                </div>
-              </section>
+          <section className="bg-white p-8 rounded-[2.5rem] shadow-sm space-y-5">
+            <h3 className="font-black uppercase tracking-widest text-[10px] text-slate-400">Shipping Info</h3>
+            <input type="text" name="fullName" placeholder="Full Name" value={formData.fullName} className="w-full p-4 rounded-2xl bg-slate-50 outline-none font-bold text-sm" onChange={handleInputChange} />
+            <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} className="w-full p-4 rounded-2xl bg-slate-50 outline-none font-bold text-sm" onChange={handleInputChange} />
+            <textarea name="address" placeholder="Address" value={formData.address} className="w-full p-4 rounded-2xl bg-slate-50 outline-none font-bold text-sm h-24" onChange={handleInputChange} />
+            <div className="flex gap-4">
+               <input type="text" name="zipCode" placeholder="Pincode" value={formData.zipCode} className="w-1/2 p-4 rounded-2xl bg-slate-50 outline-none font-bold text-sm" onChange={handleInputChange} />
+               <input type="text" name="landmark" placeholder="Landmark" value={formData.landmark} className="w-1/2 p-4 rounded-2xl bg-slate-50 outline-none font-bold text-sm" onChange={handleInputChange} />
+            </div>
+          </section>
 
-              {/* Delivery Address */}
-              <section className="space-y-6">
-                <div className="flex items-center gap-3 text-[#2e7d32]">
-                  <MapPin size={18} />
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">Shipping Address</h3>
-                </div>
-                <textarea required name="address" placeholder="STREET, BUILDING, FLAT NO." rows="2" onChange={(e) => setFormData({...formData, address: e.target.value})} className="w-full py-4 bg-transparent border-b border-gray-200 focus:border-[#2e7d32] outline-none font-bold placeholder:text-gray-300 resize-none uppercase text-sm tracking-widest" />
-                <input name="landmark" placeholder="LANDMARK (OPTIONAL)" onChange={(e) => setFormData({...formData, landmark: e.target.value})} className="w-full py-4 bg-transparent border-b border-gray-200 focus:border-[#2e7d32] outline-none font-bold placeholder:text-gray-300 uppercase text-[12px] tracking-widest" />
-              </section>
+          <section className="p-6 border-2 border-green-600 rounded-[2rem] bg-green-50/30 flex items-center gap-4">
+            <CreditCard size={24} className="text-green-600" />
+            <div>
+              <p className="font-black text-xs uppercase">Cash on Delivery</p>
+              <p className="text-[10px] text-green-700 opacity-70">Pay ₹{grandTotal} at your door.</p>
+            </div>
+          </section>
+        </div>
 
-              <button type="submit" className="w-full py-6 bg-[#2e7d32] text-white rounded-[1.5rem] font-black text-xs uppercase tracking-[0.4em] hover:bg-[#1b5e20] transition-all shadow-xl flex items-center justify-center gap-4">
-                PROCEED TO PAYMENT <ArrowRight size={18} />
-              </button>
-            </form>
-          </div>
-
-          {/* RIGHT: DARK SUMMARY CARD (Matching your Cart UI) */}
-          <div className="lg:col-span-5">
-            <div className="bg-[#111111] p-10 rounded-[2.5rem] text-white shadow-2xl sticky top-10 overflow-hidden border border-white/5">
-              <h2 className="text-sm font-black uppercase tracking-[0.3em] mb-10 flex items-center gap-3 text-gray-400">
-                <div className="w-1.5 h-1.5 bg-[#2e7d32] rounded-full" /> Your Order
-              </h2>
-              
-              <div className="space-y-6 mb-10 max-h-[300px] overflow-y-auto pr-4 custom-scrollbar">
-                {cart.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center border-b border-white/5 pb-4">
-                    <div className="flex flex-col gap-1">
-                      <p className="font-bold text-sm tracking-tight">{item.name}</p>
-                      <p className="text-[9px] text-[#2e7d32] font-black uppercase">Qty: {item.quantity}</p>
-                    </div>
-                    <span className="font-black italic text-lg text-[#f0f0f0]">₹{item.price * item.quantity}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="space-y-4 pt-4">
-                <div className="flex justify-between text-[10px] font-black uppercase text-gray-500 tracking-widest">
-                  <span>Shipping Fee</span> <span className="text-[#2e7d32]">FREE</span>
+        {/* Right Column: Order Summary */}
+        <div className="lg:sticky lg:top-28 h-fit">
+          <div className="bg-slate-900 text-white rounded-[3rem] p-10 shadow-2xl">
+            <h3 className="font-black text-2xl italic mb-8">Summary</h3>
+            <div className="space-y-6 mb-10 max-h-64 overflow-y-auto">
+              {cart.map((item) => (
+                <div key={item._id} className="flex justify-between items-center text-sm">
+                  <span className="font-bold">{item.productId?.name || item.name} (x{item.quantity})</span>
+                  <span className="font-black italic">₹{(item.productId?.price || item.price) * item.quantity}</span>
                 </div>
-                <div className="flex flex-col pt-6 border-t border-white/10">
-                  <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest mb-2">Total Amount</p>
-                  <div className="flex justify-between items-end">
-                    <span className="text-6xl font-black italic tracking-tighter">₹{totalPrice}</span>
-                    <Truck className="text-[#2e7d32] mb-2" size={24} />
-                  </div>
-                </div>
+              ))}
+            </div>
+            <div className="border-t border-white/10 pt-6 space-y-2 text-xs uppercase font-bold text-slate-400">
+              <div className="flex justify-between"><span>Subtotal</span><span className="text-white">₹{totalPrice}</span></div>
+              <div className="flex justify-between"><span>Delivery</span><span className="text-white">₹{deliveryFee}</span></div>
+              <div className="flex justify-between text-xl pt-4 text-green-500 font-black italic">
+                <span>Total</span><span>₹{grandTotal}</span>
               </div>
             </div>
-            
-            <div className="mt-8 p-6 bg-white rounded-[1.5rem] border border-gray-100 flex items-center gap-4">
-              <div className="w-10 h-10 bg-[#f0f7ed] rounded-full flex items-center justify-center text-[#2e7d32]">
-                <Leaf size={20} />
-              </div>
-              <p className="text-[10px] font-bold text-gray-400 leading-tight uppercase tracking-widest">
-                Our logistics are managed by village cooperatives to ensure 100% purity.
-              </p>
-            </div>
+            <button 
+              onClick={handleSubmit} 
+              disabled={isSubmitting}
+              className="w-full mt-10 py-5 bg-green-600 hover:bg-green-500 rounded-[2rem] font-black uppercase text-xs tracking-widest transition-all disabled:bg-slate-700"
+            >
+              {isSubmitting ? 'Placing Order...' : 'Confirm Order'}
+            </button>
           </div>
-
         </div>
       </div>
     </div>

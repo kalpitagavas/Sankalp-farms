@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion' 
 import { useTranslation } from 'react-i18next'
+import { Plus, ShoppingBasket } from 'lucide-react' // Added icons
+import { useCart } from '../context/CartContext'   // Added Cart Context
 import ProductCard from '../components/ProductCard'
 import API from '../api/axiosConfig'
 
 const Product = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { addToCart, setIsCartOpen } = useCart(); // Destructure cart functions
   
-  // States for live data and UI management
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -17,12 +19,10 @@ const Product = () => {
 
   const categories = ["All", "Spices", "Konkan Roots", "Fruits", "Oils"];
 
-  // 1. Fetching logic with error handling
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        // Ensure your backend is running and this route is defined
         const res = await API.get('/product/');
         setProducts(res.data);
       } catch (err) {
@@ -34,7 +34,13 @@ const Product = () => {
     fetchProducts();
   }, []);
 
-  // 2. Filtering logic
+  // Handler for direct add to cart
+  const handleQuickAdd = (e, item) => {
+    e.stopPropagation(); // Prevents navigating to the product detail page
+    addToCart(item);
+    setIsCartOpen(true); // Automatically slide open the cart sidebar
+  };
+
   const filteredProducts = products.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = category === "All" || item.category === category;
@@ -43,7 +49,6 @@ const Product = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
-      {/* Header Section */}
       <div className="mb-10 text-center md:text-left pt-20">
         <h2 className="text-5xl font-black text-gray-900 tracking-tighter">
           {t('productPage.titleFirst')}{' '}
@@ -78,10 +83,8 @@ const Product = () => {
         </div>
       </div>
 
-      {/* 3. Product Grid with Loading and Empty States */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {loading ? (
-          // Simple skeleton loaders
           [...Array(6)].map((_, i) => (
             <div key={i} className="h-80 w-full bg-slate-50 animate-pulse rounded-[2.5rem]" />
           ))
@@ -89,20 +92,28 @@ const Product = () => {
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((item) => (
               <motion.div 
-                key={item._id} // Using MongoDB _id
+                key={item._id}
                 layout
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
+                className="relative cursor-pointer group" // Added relative for positioning button
                 onClick={() => navigate(`/product/${item._id}`)} 
-                className="cursor-pointer group"
               >
                 <div className="transition-transform duration-500 group-hover:-translate-y-2">
                   <ProductCard product={item} />
                   
+                  {/* Floating Add to Cart Button */}
+                  <button
+                    onClick={(e) => handleQuickAdd(e, item)}
+                    className="absolute top-6 right-6 p-4 bg-white text-slate-900 rounded-2xl shadow-xl border border-slate-100 opacity-0 group-hover:opacity-100 hover:bg-green-600 hover:text-white transition-all duration-300 transform translate-y-2 group-hover:translate-y-0"
+                  >
+                    <Plus size={20} strokeWidth={3} />
+                  </button>
+
                   <div className="mt-4 flex justify-between items-center px-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-green-600">
-                      {t('productPage.viewDetails')} →
+                    <span className="text-[10px] font-black uppercase tracking-widest text-green-600 flex items-center gap-2">
+                      <ShoppingBasket size={12} /> {t('productPage.viewDetails')}
                     </span>
                     <span className="text-[10px] font-bold text-slate-300 uppercase italic">
                       {t('productPage.farmFresh')}

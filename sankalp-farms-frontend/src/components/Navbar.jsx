@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
-  const { cart, setIsCartOpen } = useCart();
+  // Destructure setCart to clear the state on logout
+  const { cart, setIsCartOpen, setCart } = useCart();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   
@@ -16,17 +17,26 @@ const Navbar = () => {
   const langRef = useRef(null);
   const totalItem = cart.reduce((acc, curr) => acc + curr.quantity, 0);
 
-  // Get user data from localStorage to handle dynamic login state
+  // Get user data from localStorage
   const userInfo = localStorage.getItem('userInfo') 
     ? JSON.parse(localStorage.getItem('userInfo')) 
     : null;
 
-  const logoutHandler = () => {
-    localStorage.removeItem('userInfo');
-    setIsMobileMenuOpen(false);
-    navigate('/login');
-  };
+const logoutHandler = () => {
+  // 1. Remove ONLY the user credentials
+  localStorage.removeItem('userInfo');
+  
+  // 2. DO NOT call setCart([]). 
+  // If you do, the "Save" effect will see an empty cart and delete 
+  // the user's items from localStorage.
+  
+  setIsMobileMenuOpen(false);
 
+  // 3. Force a hard reload to the login page.
+  // This re-initializes the CartProvider, which will now see 'guest' 
+  // and load the guest cart instead of the user's cart.
+  window.location.href = '/login'; 
+};
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (langRef.current && !langRef.current.contains(event.target)) {
@@ -87,14 +97,13 @@ const Navbar = () => {
         {/* --- RIGHT: ACTIONS --- */}
         <div className="flex items-center justify-end gap-3 md:gap-5 flex-1">
           
-          {/* Auth Section: Changes to name if logged in */}
           <div className="hidden lg:flex items-center gap-5 border-r border-slate-100 pr-5">
             {userInfo ? (
               <div className="flex items-center gap-4">
                 <div className="flex flex-col items-end leading-none">
                   <span className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">Welcome</span>
                   <span className="text-[10px] font-black text-slate-800 uppercase">
-                    {userInfo.name.split(' ')[0]} {/* Personal touch: Hi, Kalpita */}
+                    {userInfo.name.split(' ')[0]}
                   </span>
                 </div>
                 <button 
@@ -116,7 +125,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Language Selector */}
           <div className="relative" ref={langRef}>
             <button 
               onClick={() => setIsLangOpen(!isLangOpen)}
@@ -149,7 +157,6 @@ const Navbar = () => {
             </AnimatePresence>
           </div>
           
-          {/* Cart Button */}
           <button 
             onClick={() => setIsCartOpen(true)} 
             className="group relative h-11 w-11 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-emerald-600 transition-all shadow-lg"

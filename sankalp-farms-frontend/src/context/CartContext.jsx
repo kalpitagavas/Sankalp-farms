@@ -1,66 +1,77 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(() => {
-    const SavedCart = localStorage.getItem('sankalp_cart');
-    return SavedCart ? JSON.parse(SavedCart) : [];
-  });
+  const getUserId = () => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    return userInfo ? userInfo._id : 'guest';
+  };
 
-  // CHANGE 1: Use the names your components are looking for
+  const [userId, setUserId] = useState(getUserId());
+  const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const isLoaded = useRef(false);
 
+  // Load data when user changes
   useEffect(() => {
-    localStorage.setItem('sankalp_cart', JSON.stringify(cart));
-  }, [cart]);
+    const currentId = getUserId();
+    if (currentId !== userId) {
+      setUserId(currentId);
+      isLoaded.current = false;
+    }
+
+    const savedData = localStorage.getItem(`sankalp_cart_${currentId}`);
+    setCart(savedData ? JSON.parse(savedData) : []);
+    isLoaded.current = true;
+  }, [userId]); 
+
+  // Save data when cart changes
+  useEffect(() => {
+    if (isLoaded.current && userId) {
+      localStorage.setItem(`sankalp_cart_${userId}`, JSON.stringify(cart));
+    }
+  }, [cart, userId]);
+
+  // --- Core Functions ---
 
   const addToCart = (product) => {
-    setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+    setCart((prev) => {
+      const existing = prev.find((item) => item._id === product._id);
+      if (existing) {
+        return prev.map((item) => 
+          item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prevCart, { ...product, quantity: 1 }];
+      return [...prev, { ...product, quantity: 1 }];
     });
-    // Optional: Open sidebar automatically when adding an item
-    setIsCartOpen(true); 
   };
 
-  const removeFromCart = (id) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
-  };
-
-  // CHANGE 2: Add an updateQuantity function for the +/- buttons in the sidebar
-  const updateQuantity = (id, amount) => {
+  // ADDED: Update Quantity Logic
+  const updateQuantity = (id, newQuantity) => {
+    if (newQuantity < 1) return; // Prevent 0 or negative quantities
     setCart((prev) =>
       prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + amount) }
-          : item
+        item._id === id ? { ...item, quantity: newQuantity } : item
       )
     );
   };
 
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const removeFromCart = (id) => setCart(prev => prev.filter(i => i._id !== id));
+
+  // ADDED: Derived Total Price
+  const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   return (
-    <CartContext.Provider 
-      value={{ 
-        cart, 
-        setCart, 
-        addToCart, 
-        removeFromCart, 
-        updateQuantity, // Export this
-        totalItems, 
-        totalPrice, 
-        isCartOpen,     // Export this
-        setIsCartOpen   // Export this
-      }}
-    >
+    <CartContext.Provider value={{ 
+      cart, 
+      addToCart, 
+      removeFromCart, 
+      updateQuantity, // Exported
+      totalPrice,     // Exported
+      isCartOpen, 
+      setIsCartOpen 
+    }}>
       {children}
     </CartContext.Provider>
   );
