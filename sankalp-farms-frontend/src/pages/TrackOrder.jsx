@@ -1,6 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Package, CheckCircle, Truck, Star, MapPin, ChevronLeft, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { 
+  Package, CheckCircle, Truck, Star, 
+  MapPin, ShoppingBag, Loader2, ChevronLeft 
+} from 'lucide-react';
 import API from '../api/axiosConfig';
 
 const TrackOrder = () => {
@@ -9,105 +13,138 @@ const TrackOrder = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const steps = [
-    { id: 'placed', label: 'Order Placed', icon: Package, desc: 'We have received your order.' },
-    { id: 'processing', label: 'Processing', icon: CheckCircle, desc: 'Sankalp Farms is packing your items.' },
-    { id: 'shipped', label: 'Out for Delivery', icon: Truck, desc: 'Your order is on the way.' },
-    { id: 'delivered', label: 'Delivered', icon: Star, desc: 'Enjoy your fresh village produce!' },
-  ];
+  // Use your local backend URL
+  const BACKEND_URL = "http://localhost:5000";
 
   useEffect(() => {
-    const fetchOrder = async () => {
+    const fetchOrderDetails = async () => {
       try {
-        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-        const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-        const { data } = await API.get(`/orders/${id}`, config);
+        const { data } = await API.get(`/orders/${id}`); 
         setOrder(data);
-      } catch (err) {
-        console.error("Tracking fetch failed", err);
+      } catch (error) {
+        console.error("Error fetching order:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchOrder();
+    if (id) fetchOrderDetails();
   }, [id]);
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <Loader2 className="animate-spin text-emerald-600" size={40} />
+    <div className="h-screen flex items-center justify-center bg-slate-50">
+      <Loader2 className="text-emerald-600 animate-spin" size={40} />
     </div>
   );
 
-  if (!order) return <div className="text-center py-20 font-bold">Order not found.</div>;
+  // If order is still null after loading, show a clear message
+  if (!order) return (
+    <div className="flex flex-col items-center justify-center h-screen gap-4">
+      <p className="text-slate-500 font-bold">Order not found.</p>
+      <button onClick={() => navigate(-1)} className="text-emerald-600 underline">Go Back</button>
+    </div>
+  );
 
-  // Use the status from the database, default to 'placed'
-  const currentStatus = order.status || 'placed';
-  const currentStepIndex = steps.findIndex(s => s.id === currentStatus);
+  // Data normalization
+  const orderStatus = order.status || 'Pending';
+  const items = order.orderItems || order.items || [];
+  const grandTotal = order.totalPrice || order.totalAmount || 0;
+
+  const steps = [
+    { id: 'Pending', label: 'Order Placed', icon: Package },
+    { id: 'Confirmed', label: 'Processing', icon: CheckCircle },
+    { id: 'Shipped', label: 'Out for Delivery', icon: Truck },
+    { id: 'Delivered', label: 'Delivered', icon: Star },
+  ];
+
+  const currentStepIndex = steps.findIndex(s => s.id === orderStatus);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      <button onClick={() => navigate(-1)} className="flex items-center gap-2 mb-6 text-gray-400 font-bold text-xs uppercase tracking-widest hover:text-emerald-600 transition-colors">
-        <ChevronLeft size={16} /> Back to Orders
+      <button 
+        onClick={() => navigate(-1)} 
+        className="mb-6 flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors font-bold text-xs uppercase tracking-widest"
+      >
+        <ChevronLeft size={16} /> Back
       </button>
 
-      <div className="bg-white rounded-[3rem] shadow-2xl p-10 border border-gray-50">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-12 border border-slate-100 overflow-hidden relative">
+        {/* Header Section */}
         <div className="flex justify-between items-start mb-12">
           <div>
-            <h1 className="text-3xl font-black italic uppercase tracking-tighter text-gray-900">Track Order</h1>
-            <p className="text-gray-400 font-bold text-[10px] mt-1 uppercase tracking-widest">ID: #{order._id}</p>
-            <div className="flex items-center gap-2 mt-4 text-emerald-600 bg-emerald-50 w-fit px-4 py-2 rounded-2xl">
-              <MapPin size={14} />
-              <span className="text-xs font-black uppercase">Mumbai Delivery</span>
-            </div>
+            <h1 className="text-3xl font-black text-slate-900 uppercase">
+              Track Order<span className="text-emerald-600">.</span>
+            </h1>
+            <p className="text-slate-400 font-bold text-[10px] tracking-widest uppercase mt-2">
+              Order ID: #{id?.slice(-8).toUpperCase()}
+            </p>
           </div>
-          <span className="bg-emerald-600 text-white px-6 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-100">
-            {currentStatus}
+          <span className="bg-slate-900 text-white px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest">
+            {orderStatus}
           </span>
         </div>
 
-        {/* Stepper Logic */}
-        <div className="relative">
-          <div className="absolute left-6 top-0 bottom-0 w-1 bg-gray-50 md:left-0 md:top-6 md:w-full md:h-1" />
-          <div 
-            className="absolute left-6 top-0 w-1 bg-emerald-600 transition-all duration-1000 md:left-0 md:top-6 md:h-1" 
-            style={{ 
-              height: window.innerWidth < 768 ? `${(currentStepIndex / (steps.length - 1)) * 100}%` : '4px',
-              width: window.innerWidth >= 768 ? `${(currentStepIndex / (steps.length - 1)) * 100}%` : '4px'
-            }}
+        {/* Tracking Progress */}
+        <div className="relative mb-20 px-4">
+          <div className="absolute top-7 left-4 right-4 h-2 bg-slate-100 rounded-full" />
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
+            className="absolute top-7 left-4 h-2 bg-emerald-500 rounded-full z-10"
           />
-
-          <div className="space-y-12 md:space-y-0 md:flex md:justify-between relative z-10">
+          <div className="relative flex justify-between z-20">
             {steps.map((step, index) => {
               const Icon = step.icon;
               const isPast = index <= currentStepIndex;
-              const isCurrent = index === currentStepIndex;
-
               return (
-                <div key={step.id} className="flex items-start gap-6 md:flex-col md:items-center md:gap-4 md:flex-1">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border-4 transition-all duration-500 ${
-                    isPast ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-white border-gray-100 text-gray-200'
-                  } ${isCurrent ? 'scale-125 ring-8 ring-emerald-50' : ''}`}>
-                    <Icon size={20} />
+                <div key={step.id} className="flex flex-col items-center">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border-4 transition-colors ${
+                    isPast ? 'bg-emerald-600 border-emerald-400 text-white' : 'bg-white border-slate-50 text-slate-200'
+                  }`}>
+                    <Icon size={24} />
                   </div>
-                  <div className="md:text-center">
-                    <h3 className={`text-sm font-black uppercase tracking-tight ${isPast ? 'text-gray-900' : 'text-gray-300'}`}>{step.label}</h3>
-                    <p className="text-[10px] font-bold text-gray-400 mt-1 max-w-[120px] leading-tight">{step.desc}</p>
-                  </div>
+                  <p className={`mt-5 text-[10px] font-black uppercase ${isPast ? 'text-slate-900' : 'text-slate-300'}`}>
+                    {step.label}
+                  </p>
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* Order Summary Preview */}
-        <div className="mt-16 p-8 bg-gray-50 rounded-[2.5rem] flex justify-between items-center">
-          <div>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Amount</p>
-            <p className="text-2xl font-black italic text-gray-900">₹{order.totalAmount}</p>
+        {/* Product Items */}
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-8 border border-slate-100">
+          <h2 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-8">Items</h2>
+          <div className="space-y-4">
+            {items.length > 0 ? items.map((item, idx) => (
+              <div key={item._id || idx} className="flex items-center justify-between bg-white p-4 rounded-3xl border border-slate-100">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <img 
+                      src={item.image 
+                        ? `${BACKEND_URL}${item.image.startsWith('/') ? '' : '/'}${item.image}` 
+                        : 'https://placehold.jp/150x150.png'} 
+                      alt={item.name} 
+                      className="w-16 h-16 rounded-2xl object-cover bg-slate-100"
+                      onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.jp/150x150.png'; }}
+                    />
+                    <span className="absolute -top-2 -right-2 bg-emerald-600 text-white text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-lg shadow-md">
+                      {item.quantity}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-slate-800">{item.name}</h4>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">₹{item.price}</p>
+                  </div>
+                </div>
+                <p className="text-sm font-black text-slate-900 italic">₹{item.price * item.quantity}</p>
+              </div>
+            )) : <p className="text-slate-400 text-xs">No items found in this order.</p>}
           </div>
-          <button className="bg-gray-900 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all">
-            View Details
-          </button>
+
+          <div className="mt-10 pt-8 border-t border-slate-200 flex justify-between items-center">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Amount</span>
+            <span className="text-3xl font-black text-slate-900 italic">₹{grandTotal}</span>
+          </div>
         </div>
       </div>
     </div>

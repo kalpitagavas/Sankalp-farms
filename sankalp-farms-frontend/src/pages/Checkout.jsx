@@ -113,7 +113,7 @@ const handleInputChange = (e) => {
           name: item.productId?.name || item.name,
           quantity: item.quantity,
           price: item.productId?.price || item.price,
-          image: item.productId?.image || item.image
+        image: item.productId?.image || item.image || item.productImage
         })),
         shippingAddress: {
           fullName: formData.fullName,

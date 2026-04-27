@@ -43,6 +43,7 @@ export const CartProvider = ({ children }) => {
           item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
+      
       return [...prev, { ...product, quantity: 1 }];
     });
   };

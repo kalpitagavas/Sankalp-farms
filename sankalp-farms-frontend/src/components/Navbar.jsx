@@ -85,10 +85,19 @@ const logoutHandler = () => {
         </div>
 
         {/* --- CENTER: MAIN NAV --- */}
+    
         <div className="hidden md:flex gap-10 justify-center">
           <Link to="/product" className="text-[11px] font-black uppercase tracking-widest text-slate-500 hover:text-emerald-600 transition-colors">
             {t('nav.products') || 'Collection'}
           </Link>
+          
+          {/* ONLY show 'My Orders' if the user is logged in */}
+          {userInfo && (
+            <Link to="/my-orders" className="text-[11px] font-black uppercase tracking-widest text-slate-500 hover:text-emerald-600 transition-colors">
+              {t('nav.orders') || 'My Orders'}
+            </Link>
+          )}
+          
           <Link to="/story" className="text-[11px] font-black uppercase tracking-widest text-slate-500 hover:text-emerald-600 transition-colors">
             {t('nav.story') || 'Our Story'}
           </Link>

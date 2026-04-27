@@ -16,6 +16,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import OrderSuccess from './pages/OrderSuccess';
+import MyOrders from './pages/MyOrder';
 
 function App() {
   return (
@@ -37,11 +38,12 @@ function App() {
             
             {/* 4. ADD THE TRACKING ROUTE */}
           
-             <Route path="/login" element={<Login />} /> 
-               <Route path="/register" element={<Register />} /> 
-                  <Route path="/profile" element={<Profile />} /> 
-                 <Route path="/order-success/:id" element={<OrderSuccess />} />
-          <Route path="/track-order/:id" element={<TrackOrder />} />
+            <Route path="/login" element={<Login />} /> 
+            <Route path="/register" element={<Register />} /> 
+            <Route path="/profile" element={<Profile />} /> 
+            <Route path="/order-success/:id" element={<OrderSuccess />} />
+            <Route path="/my-orders" element={<MyOrders />} />
+            <Route path="/track-order/:id" element={<TrackOrder />} />
                   
           </Routes>
         </main>
