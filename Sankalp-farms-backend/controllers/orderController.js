@@ -5,30 +5,36 @@ const Order=require('../models/orderSchema')
 const addOrderItems = async (req, res) => {
   const { orderItems, shippingAddress, totalPrice } = req.body;
 
+  if (!orderItems || orderItems.length === 0) {
+    return res.status(400).json({ message: 'No order items' });
+  }
+
   try {
     const createdOrder = await Order.create({
       user: req.user._id,
-      // Change 'customer' to match what your Schema expects
       customer: {
         fullName: shippingAddress.fullName,
         phone: shippingAddress.phone,
         address: shippingAddress.address,
         pincode: shippingAddress.zipCode || shippingAddress.pincode,
-        city: shippingAddress.city,
         landmark: shippingAddress.landmark
       },
-      // Change 'items' to match your Schema
-      items: orderItems, 
-      totalAmount: totalPrice, 
+      // Mapping frontend keys to Schema keys
+      items: orderItems.map(item => ({
+        productId: item.productId?._id || item.productId || item._id, 
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        image: item.image
+      })),
+      totalAmount: totalPrice,
+      status: 'Pending' // Explicitly use the Schema default/enum
     });
 
     res.status(201).json(createdOrder);
   } catch (error) {
-    console.error("VALIDATION ERROR:", error.message);
-    res.status(500).json({ 
-      message: 'Order creation failed', 
-      error: error.message 
-    });
+    console.error("Mongoose Error:", error.message);
+    res.status(500).json({ message: 'Order creation failed', error: error.message });
   }
 };
 // @desc    Get logged in user orders

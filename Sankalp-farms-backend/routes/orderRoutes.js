@@ -8,8 +8,6 @@ const { protect } = require('../middleware/authMiddleware');
 router.route('/').post(protect, addOrderItems);
 
 // GET /api/orders/myorders -> Get the logged-in user's order history'
-router.route('/myorders').get(protect,getMyOrders)
-
-// GET /api/orders/:id -> Get specific order details by ID
-router.route('/:id').get(protect,getMyOrdersById)
+router.route('/myorders').get(protect, getMyOrders); // Keep this ABOVE the :id route
+router.route('/:id').get(protect, getMyOrdersById);
  module.exports = router;
