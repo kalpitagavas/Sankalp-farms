@@ -1,28 +1,37 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/UserModel");
+
 const protect = async (req, res, next) => {
   let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
     try {
       token = req.headers.authorization.split(" ")[1];
-     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-req.user = await User.findById(decoded.id).select("-password");
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.id).select("-password");
 
-// ADD THIS CHECK:
-if (!req.user) {
-  return res.status(401).json({ message: "User no longer exists" });
-}
+      if (!req.user) {
+        return res.status(401).json({ message: "User no longer exists" });
+      }
       next();
     } catch (error) {
       res.status(401).json({ message: "Not authorized, token failed" });
     }
-  }
-  if (!token) {
+  } else {
     res.status(401).json({ message: "Not authorized, no token" });
   }
 };
 
-module.exports={protect}
+const admin = (req, res, next) => {
+  // Debugging log: check your server console to see these values
+  console.log(`User: ${req.user?.name} | Role: ${req.user?.role} | isAdmin: ${req.user?.isAdmin}`);
+
+  if (req.user && (req.user.isAdmin === true || req.user.role === 'admin')) {
+    next();
+  } else {
+    res.status(403).json({ 
+      message: `Access Denied. role: ${req.user?.role || 'none'}, isAdmin: ${req.user?.isAdmin || 'false'}` 
+    });
+  }
+};
+
+module.exports = { protect, admin };

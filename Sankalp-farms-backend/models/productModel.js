@@ -5,10 +5,26 @@ const productSchema = new mongoose.Schema({
   description: { type: String, required: true },
   
   // Pricing Logic
-  price: { type: Number, required: true },     
+  price: { type: Number, required: true },      
   MRP: { type: Number, required: true },      
   unit: { type: String, default: 'kg' },    
   
+  // --- NEW: Subscription Logic ---
+  subscriptionAvailable: { 
+    type: Boolean, 
+    default: false 
+  },
+  subscriptionPrice: { 
+    type: Number,
+    // Usually set lower than 'price' to encourage subscriptions
+  },
+  subscriptionCycle: { 
+    type: String, 
+    enum: ['Weekly', 'Monthly', 'Bi-Monthly'], 
+    default: 'Monthly' 
+  },
+  // -------------------------------
+
   // Sankalp Specifics
   category: { 
     type: String, 
