@@ -155,7 +155,7 @@ const Profile = () => {
                             order.status === 'Delivered' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'
                           }`}>
                             {order.status}
-                          </span>
+                          </span>git add .
                         </div>
                         <div className="text-right min-w-[100px]">
                           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Total</p>
