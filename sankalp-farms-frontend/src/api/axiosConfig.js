@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 const API = axios.create({
-  // Use your new live Render URL here
   baseURL: 'https://sankalp-farms.onrender.com/api', 
 });
 
