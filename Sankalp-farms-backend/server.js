@@ -12,7 +12,8 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: "https://sankalp-farms.netlify.app", // Allow your Netlify domain
+  origin: ["https://sankalp-farms.netlify.app", "http://localhost:5173"], // Add your Netlify URL here!
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
