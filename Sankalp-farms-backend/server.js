@@ -11,9 +11,9 @@ const path = require('path'); // Ensure this is at the top
 dotenv.config();
 const app = express();
 
-app.use(cors({ 
-    origin: 'https://sankalp-farms.netlify.app', // Update this to your real Netlify URL
-    credentials: true 
+app.use(cors({
+  origin: "https://sankalp-farms.netlify.app", // Allow your Netlify domain
+  credentials: true
 }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
