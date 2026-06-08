@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api', // Your backend URL
+  // Use your new live Render URL here
+  baseURL: 'https://sankalp-farms.onrender.com/api', 
 });
 
 // This automatically attaches your JWT token to every request if it exists
