@@ -17,7 +17,10 @@ const productSchema = new mongoose.Schema({
   subscriptionPrice: { 
     type: Number,
     // Usually set lower than 'price' to encourage subscriptions
-  },
+  },stock: {
+  type: Number,
+  default: 10
+},
   subscriptionCycle: { 
     type: String, 
     enum: ['Weekly', 'Monthly', 'Bi-Monthly'], 

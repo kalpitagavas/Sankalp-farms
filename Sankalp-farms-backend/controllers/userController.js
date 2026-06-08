@@ -1,5 +1,5 @@
 const express = require('express')
-const User = require('../models/UserModel')
+const User = require('../models/userModel')
 
 const jwt = require('jsonwebtoken');
 // Import it and NAME it 'bcrypt' so your code below recognizes it

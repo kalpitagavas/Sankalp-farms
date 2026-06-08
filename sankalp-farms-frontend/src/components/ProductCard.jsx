@@ -1,81 +1,49 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { Plus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
-const ProductCard = ({ product, isBulk }) => { // <--- Added isBulk prop
+const ProductCard = ({ product, isBulk }) => {
   const { addToCart } = useCart();
-  const isAvailable = product.inStock;
-
-  const isKonkan = product.category?.toLowerCase().includes('konkan') || product.name.toLowerCase().includes('cashew');
-  const region = isKonkan ? "Konkan" : "Gujarat";
+const isAvailable = product.countInStock > 0;
+  const price = isBulk ? product.bulkPrice : product.price;
 
   return (
-    <motion.div 
-      layout // This handles the height changes smoothly
-      className="relative flex flex-col h-[520px] w-full bg-white rounded-[3rem] p-4 border border-stone-100 group transition-all duration-500 hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)]"
+    <motion.div
+      whileHover={{ y: -4 }}
+      className="group relative flex flex-col w-full h-[280px] bg-white rounded-[32px] p-4 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 overflow-hidden"
     >
-      {/* 1. Image Section */}
-      <div className="relative h-[320px] w-full rounded-[2.5rem] overflow-hidden bg-stone-50">
-          <img 
-      src={product.image} 
-      alt={product.name} 
-      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-    />
-        <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] text-white shadow-lg
-          ${isKonkan ? 'bg-emerald-600' : 'bg-orange-600'}`}>
-          {region}
-        </div>
-
-        {isAvailable && (
-          <motion.button
-            whileHover={{ scale: 1.1, rotate: 90 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={(e) => {
-              e.stopPropagation(); // ADD ONLY, NO MODAL
-              addToCart({ ...product, price: isBulk ? product.bulkPrice : product.price }); 
-            }}
-            className="absolute bottom-4 right-4 h-14 w-14 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-orange-600 transition-colors z-20"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </motion.button>
+      {/* IMAGE - Organic shape */}
+      <div className="relative w-full h-[160px] rounded-[24px] overflow-hidden bg-stone-50">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
+        {!isAvailable && (
+          <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-900">Sold</span>
+          </div>
         )}
       </div>
 
-      {/* 2. Text Details */}
-      <div className="flex-1 flex flex-col items-center justify-center text-center px-2 py-6">
-        <span className="text-[10px] font-black text-orange-600 uppercase tracking-[0.4em] mb-2">
-          {product.category}
-        </span>
-        
-        <h3 className="text-2xl font-black text-slate-800 leading-tight mb-4 truncate w-full">
-          {product.name}
-        </h3>
+      {/* CONTENT - Clean, unboxed typography */}
+      <div className="mt-4 flex flex-col justify-between flex-grow">
+        <div>
+          <h3 className="text-[13px] font-bold text-stone-900 leading-snug">{product.name}</h3>
+          <p className="text-[9px] font-bold text-stone-400 uppercase tracking-widest mt-1">{product.category}</p>
+        </div>
 
-        {/* 3. Price Animation - Switching between Retail and Bulk */}
-        <div className="mt-auto overflow-hidden h-12 flex flex-col items-center justify-center">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={isBulk ? 'bulk' : 'retail'}
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -20, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="flex flex-col items-center"
-            >
-              <div className="flex items-baseline gap-2">
-                <span className={`text-3xl font-black transition-colors ${isBulk ? 'text-green-600' : 'text-slate-900'}`}>
-                  ₹{isBulk ? product.bulkPrice : product.price}
-                </span>
-                <span className="text-xs font-bold text-slate-300 uppercase tracking-tighter">/ {product.unit}</span>
-              </div>
-              {isBulk && (
-                <span className="text-[8px] font-black text-green-500 uppercase tracking-widest mt-1">Village Wholesale Rate</span>
-              )}
-            </motion.div>
-          </AnimatePresence>
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-black text-stone-900">₹{price}</span>
+          <button
+            onClick={() => isAvailable && addToCart({ ...product, price })}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+              isAvailable ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-300'
+            }`}
+          >
+            <Plus size={14} strokeWidth={3} />
+          </button>
         </div>
       </div>
     </motion.div>
