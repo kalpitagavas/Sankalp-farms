@@ -13,28 +13,26 @@ const generateToken = (id) => {
 //@desc:Register a new user
 // @route   POST /api/users
 const registerUser = async (req, res) => {
-    const { name, email, password } = req.body
+    const { name, email, password } = req.body;
     try {
-        const userExists = await User.findOne({ email })
+        console.log("Checking if user exists:", email); // Log 1
+        const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
+        
+        console.log("Attempting to create user with data:", { name, email }); // Log 2
         const user = await User.create({ name, email, password });
+        
         if (user) {
-            res.status(200).json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                token: generateToken(user._id)
-            })
+            res.status(200).json({ _id: user._id, name: user.name, email: user.email, role: user.role, token: generateToken(user._id) });
         }
-    }
-    catch (err) {
-        res.status(500).json({ message: err.message }); 
+    } catch (err) {
+        console.error("!!! CRASHED AT REGISTRATION !!!", err); // Log 3
+        // Send the specific error message to your browser's network tab
+        res.status(500).json({ message: "Registration failed", error: err.message, stack: err.stack }); 
     }
 }
-
 const loginUser = async (req, res) => {
     const { email, password } = req.body
     const user = await User.findOne({ email }).select('+password')
