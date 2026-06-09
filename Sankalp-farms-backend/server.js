@@ -12,9 +12,10 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: ["https://sankalp-farms.vercel.app"], // No trailing slash!
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  origin: "https://sankalp-farms.vercel.app", // EXACT URL, no trailing slash
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Added OPTIONS
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"] // Added allowed headers
 }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
