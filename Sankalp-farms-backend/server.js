@@ -12,7 +12,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: ["https://sankalp-farms.netlify.app", "http://localhost:5173"], // Add your Netlify URL here!
+  origin: ["https://sankalp-farms.vercel.app"], // No trailing slash!
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
